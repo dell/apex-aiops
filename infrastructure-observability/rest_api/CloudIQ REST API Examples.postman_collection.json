@@ -1,0 +1,1050 @@
+{
+	"info": {
+		"_postman_id": "fcfbc5ff-5b6e-43b4-81c7-a18e6141a027",
+		"name": "CloudIQ REST API Examples",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23863114"
+	},
+	"item": [
+		{
+			"name": "Basic System Info - All systems",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/systems",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"systems"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Storage Systems & Show (Select) specific attributes (string)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/storage_systems?select=serial_number,ipv4_address,model,location",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"storage_systems"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "serial_number,ipv4_address,model,location"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Server Systems",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/server_systems",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"server_systems"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Server Systems & filter by location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/server_systems?filter=location like 'TOKYO'&select=power_consumption,power_state",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"server_systems"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "location like 'TOKYO'"
+						},
+						{
+							"key": "select",
+							"value": "power_consumption,power_state"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Server Systems & Show (select) specific attributes and filter health score greater than",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/server_systems?select=health_score, health_state, health_issue_count&filter=health_score GT 90",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"server_systems"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "health_score, health_state, health_issue_count"
+						},
+						{
+							"key": "filter",
+							"value": "health_score GT 90"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Server Systems & Show (Select) specific attributes (integer)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/server_systems?select=id",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"server_systems"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter System, select specific attributes and filter again by location",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/storage_systems?select=serial_number,ipv4_address,model,location&filter=location like 'NEW'",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"storage_systems"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "serial_number,ipv4_address,model,location"
+						},
+						{
+							"key": "filter",
+							"value": "location like 'NEW'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Select Attributes and filter Systems",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/pools?select=system,system_model,system_name,total_size,used_size&filter=system_model like 'Unity'",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"pools"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "system,system_model,system_name,total_size,used_size"
+						},
+						{
+							"key": "filter",
+							"value": "system_model like 'Unity'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List of available Metrics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/metric-metadata",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"metric-metadata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Ports",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/ports",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"ports"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ports, select specific information & filter",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/ports?select=id,system_id,systen_type,connector_type, system_model&filter=system_model like 'PowerEdge'",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"ports"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "id,system_id,systen_type,connector_type, system_model"
+						},
+						{
+							"key": "filter",
+							"value": "system_model like 'PowerEdge'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Drives",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/drives",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"drives"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Specific Drive",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/drives/<add your drive ID here>",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"drives",
+						"<add your drive ID here>"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Drives ordered by size",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/drives?select=id,system_id,system_type,serial_number,size&order=size",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"drives"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "id,system_id,system_type,serial_number,size"
+						},
+						{
+							"key": "order",
+							"value": "size"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Drives ordered by size descending",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/drives?select=id,system_id,system_type,serial_number,size&order=size.des",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"drives"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "id,system_id,system_type,serial_number,size"
+						},
+						{
+							"key": "order",
+							"value": "size.des"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Filesystems",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/filesystems",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"filesystems"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Hosts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/hosts",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"hosts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Pools",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/pools",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"pools"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Pools and show only ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/pools?select=id",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"pools"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Pools filter less than 50% of free space",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/pools?filter=used_percent gt 50",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"pools"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "used_percent gt 50"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Storage Groups",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/storage_groups",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"storage_groups"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Storage Resource Pools",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/storage_resource_pools",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"storage_resource_pools"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All LUNs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/volumes",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"volumes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Firmwares",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/firmwares",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"firmwares"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Network Systems",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/network_systems",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"network_systems"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metric Metadata",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/metric-metadata",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"metric-metadata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metric Specific Metadata",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/metric-metadata/inlet_temperature_server_system",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"metric-metadata",
+						"inlet_temperature_server_system"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metric Specific Metadata 2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/metric-metadata/cpu_usage_percent_server_system",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"metric-metadata",
+						"cpu_usage_percent_server_system"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter Custom tags 1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/storage_systems?select=serial_number,ipv4_address,model,location,type,site_name,connectivity_status,object_name,system_tags&filter=location ilike '<location>'",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"storage_systems"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "serial_number,ipv4_address,model,location,type,site_name,connectivity_status,object_name,system_tags"
+						},
+						{
+							"key": "filter",
+							"value": "location ilike '<location>'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter Custom tags 2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/storage_systems?select=serial_number,ipv4_address,model,location,type,site_name,connectivity_status,object_name,system_tags&filter=system_tags(<system_tag>) eq '<value>'",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"storage_systems"
+					],
+					"query": [
+						{
+							"key": "select",
+							"value": "serial_number,ipv4_address,model,location,type,site_name,connectivity_status,object_name,system_tags"
+						},
+						{
+							"key": "filter",
+							"value": "system_tags(<system_tag>) eq '<value>'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter Custom tags 3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1//volumes?filter=system_tags(<system_tag>) eq '<value>' and tags(project) eq '<tag>'",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"",
+						"volumes"
+					],
+					"query": [
+						{
+							"key": "filter",
+							"value": "system_tags(<system_tag>) eq '<value>' and tags(project) eq '<tag>'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics Metadata Pools",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"from\": \"2023-11-10T00:00:00Z\",\r\n  \"to\": \"2023-11-11T00:00:00Z\",\r\n  \"resource_type\": \"pool\",\r\n  \"ids\": [\r\n         \"<pool name 1\",\r\n         \"<pool name 2>\",\r\n         \"<pool name 3>\",\r\n         \"<pool name n>\"\r\n  ],\r\n  \"metrics\": [\r\n    \"free_size\",\r\n    \"used_size\"\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/metrics/query",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"metrics",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics Metadata Pools 2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"from\": \"2022-11-10T00:00:00Z\",\r\n  \"to\": \"2022-11-11T00:00:00Z\",\r\n  \"resource_type\": \"pool\",\r\n  \"ids\": [\r\n         \"<pool name 1\",\r\n         \"<pool name 2>\",\r\n         \"<pool name 3>\",\r\n         \"<pool name n>\"\r\n  ],\r\n  \"interval\": \"PT5M\",\r\n  \"metrics\": [\r\n    \"bandwidth\",\r\n    \"bandwidth_read\",\r\n    \"bandwidth_write\"\r\n\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/metrics/query",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"metrics",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics Metadata Servers",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"from\": \"2022-11-13T00:00:00Z\",\r\n  \"to\": \"2022-11-14T00:00:00Z\",\r\n  \"resource_type\": \"server_system\",\r\n  \"ids\": [\r\n         \"<server name 1>\",\r\n         \"<server name 2>\",\r\n         \"<server name 3>\",\r\n         \"<server name n>\"\r\n  ],\r\n  \"interval\": \"PT15M\",\r\n  \"metrics\": [\r\n       \"inlet_temperature\",\r\n        \"power_consumption\",\r\n        \"cpu_usage_percent\"\r\n  ]\r\n}\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://cloudiq.apis.dell.com/cloudiq/rest/v1/metrics/query",
+					"protocol": "https",
+					"host": [
+						"cloudiq",
+						"apis",
+						"dell",
+						"com"
+					],
+					"path": [
+						"cloudiq",
+						"rest",
+						"v1",
+						"metrics",
+						"query"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "tokenName",
+				"value": "{{CloudIQToken}}",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "{{ClientSecret}}",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{ClientID}}",
+				"type": "string"
+			},
+			{
+				"key": "challengeAlgorithm",
+				"value": "S256",
+				"type": "string"
+			},
+			{
+				"key": "scope",
+				"value": "oapi",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "client_credentials",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "queryParams",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "https://cloudiq.apis.dell.com/auth/oauth/v2/token",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
