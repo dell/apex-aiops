@@ -1,0 +1,392 @@
+#!/usr/bin/env node
+/** **************************************************************************
+ *
+ *  Utility to copy tables from ServiceNow to Moogsoft catalogs
+ *
+ *************************************************************************** */
+
+const fs = require('fs');
+const path = require('path');
+const yaml = require('js-yaml');
+const hjson = require('hjson');
+const getopts = require('getopts');
+
+const protocol = 'https';
+const mooghost = 'api.moogsoft.ai';
+
+const cmdbPath = '/api/now/table';
+const catalogPath = '/v1/catalogs';
+const catalogFilesPath = '/v1/catalog-files';
+
+const configPath = path.join(process.argv[1], '../../config');
+
+const CONF = 'msc';
+const SNOW_LIMIT = 10000;
+
+// Process command line options
+const cliopts = getopts(process.argv.slice(2), {
+    alias: {
+        loglevel: 'l',
+        dryrun: 'd',
+        init: 'i',
+        conf: 'c',
+        skip: 's',
+        help: 'h',
+    },
+    default: {
+        loglevel: 'warn',
+        dryrun: false,
+        conf: false,
+    },
+});
+
+// A debug function
+function debug(msg) {
+    if (cliopts.loglevel === 'debug') console.log(msg);
+}
+
+if (cliopts.help) {
+    console.log('Usage: moog-snow-catalog [-i] [-d] [-l debug] [-c config_file] [-s] [-h]');
+    process.exit(0);
+}
+
+//
+// Create a template config file
+//
+if (cliopts.init) {
+    let template = '---\nmoog:\n  apiKey: \'foo-bar-0123434-ahdgefwvbs14535\'\n\n';
+    template = `${template}snow:\n  hostname: 'mysnow.service-now.com'\n  username: 'admin'\n  password: 'foobar'\n`;
+    template = `${template}  cmdb_table: 'cmdb_ci'\n  sysparm_fields:\n    - name\n    - support_group\n    - sys_class_name\n`;
+    template = `${template}  sysparm_query: 'install_status=1'\n`;
+    const cf = path.join(configPath, `${CONF}.yaml`);
+
+    try {
+        fs.writeFileSync(cf, template);
+        console.log(`Template file ${cf} created`);
+    } catch (err) {
+        console.error(err);
+    }
+    process.exit(0);
+}
+
+// Load a YAML config file
+function loadConfigYaml(cFileName) {
+    const cf = yaml.load(fs.readFileSync(cFileName, 'utf8'));
+    return cf;
+}
+
+// Load a HJSON config file
+function loadConfigHjson(cFileName) {
+    const cfText = fs.readFileSync(cFileName, 'utf8');
+    const cf = hjson.parse(cfText);
+    return cf;
+}
+
+// Determine what kind of config file is being used
+function loadConfig() {
+    const yamlFile = path.join(configPath, `/${CONF}.yaml`);
+    const confFile = path.join(configPath, `/${CONF}.conf`);
+    let cnfg = {};
+
+    if (cliopts.conf !== false) {
+        if (!fs.existsSync(cliopts.conf)) {
+            console.error(`ERROR: config file not found: ${cliopts.conf}`);
+            process.exit(2);
+        }
+
+        const ext = path.extname(cliopts.conf);
+        if (ext === '.yaml') {
+            cnfg = loadConfigYaml(cliopts.conf);
+        } else if (ext === '.conf') {
+            cnfg = loadConfigHjson(cliopts.conf);
+        } else {
+            console.error(`ERROR: unknown extension: ${ext}`);
+            process.exit(1);
+        }
+    } else {
+        const existYamlFile = fs.existsSync(yamlFile);
+        const existConfFile = fs.existsSync(confFile);
+
+        if (existYamlFile && existConfFile) {
+            console.error('ERROR: ambiguous configuration, only one file (.conf or .yaml) can exist');
+            process.exit(1);
+        } else if (existYamlFile) {
+            cnfg = loadConfigYaml(yamlFile);
+        } else if (existConfFile) {
+            cnfg = loadConfigHjson(confFile);
+        } else {
+            console.error('ERROR: no config file found');
+            process.exit(1);
+        }
+    }
+    return cnfg;
+}
+
+const configfile = loadConfig();
+
+//
+// Pull secrets
+//
+const apiKey = configfile.moog.apiKey ? configfile.moog.apiKey : null;
+const username = configfile.snow.username ? configfile.snow.username : null;
+const password = configfile.snow.password ? configfile.snow.password : null;
+
+//
+// HTTPS Options
+//
+const headers = {
+    apiKey,
+    'Content-Type': 'application/json',
+};
+
+const getOptions = {
+    headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+    },
+};
+
+const postOptions = {
+    method: 'POST',
+    headers: {
+        apiKey,
+        Accept: 'application/json',
+    },
+};
+
+//
+// Define the queries
+//
+const cmdbTable = configfile.snow.cmdb_table;
+const cmdbName = typeof configfile.moog.cmdb_alias !== 'undefined' ? configfile.moog.cmdb_alias : cmdbTable;
+const sysparmFields = configfile.snow.sysparm_fields.join(',');
+
+//
+// Delete a catalog
+//
+
+async function deleteCatalog(catalog) {
+    if (!cliopts.dryrun) {
+        console.log(`==== Attemping to delete ${catalog} catalog ====`);
+
+        const fileName = `${catalog}.csv`;
+        if (!fs.existsSync(fileName)) {
+            console.error(`ERROR: csv file not found: ${fileName}`);
+            process.exit(2);
+        }
+
+        try {
+            const reqURL = `${protocol}://${mooghost}${catalogPath}/${catalog}`;
+            const serverResp = await fetch(reqURL, {
+                headers,
+                method: 'DELETE',
+            });
+            const jsonResponse = await serverResp.json();
+
+            if (!serverResp.ok) {
+                console.error(`ERROR: REST error deleting catalog: ${jsonResponse.error.message}`);
+            } else {
+                console.log('Delete successful');
+            }
+
+            if (jsonResponse.status !== 'success') {
+                console.log(jsonResponse);
+            } else {
+                debug(jsonResponse);
+            }
+        } catch (error) {
+            console.error(`ERROR: failed to delete catalog: ${JSON.stringify(error)}`);
+            process.exit(3);
+        }
+    }
+    return null;
+}
+
+//
+// Send a POST request to API
+//
+async function postCatalog(options, csv, table) {
+    console.log(`==== Uploading: ${csv} ====`);
+    const fileName = `${csv}.csv`;
+
+    if (!fs.existsSync(fileName)) {
+        console.error(`ERROR: csv file not found: ${fileName}`);
+        process.exit(2);
+    }
+
+    const url = `https://${mooghost}${catalogFilesPath}`;
+    const formData = new FormData();
+
+    const file = fs.readFileSync(fileName, 'utf8');
+
+    formData.append('name', `${csv}`);
+    formData.append('file', file);
+    formData.append('description', `Imported ${table} catalog`);
+
+    options.body = formData;
+
+    debug(formData);
+
+    if (!cliopts.dryrun) {
+        await deleteCatalog(csv);
+
+        try {
+            const response = await fetch(url, options);
+            const data = await response.json();
+
+            // Normalized response logging
+            switch (data.status) {
+                case 'success':
+                    console.log(`Success: Catalog ${csv} uploaded`);
+                    break;
+                case 'failure':
+                    console.log(`Failure: ${data.additional[0]}`);
+                    break;
+                case 'error':
+                    console.error(`ERROR: ${data.message}`);
+                    break;
+                default:
+                    // Do nothing
+                    break;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}
+
+//
+// Create a CSV file header
+//
+async function createCsvHeader(fileName, data) {
+    console.log(`==== Writing [${fileName}] ====`);
+    // Create the header
+    const columns = Object.keys(data[0]);
+    let header = '';
+
+    columns.forEach((column, index) => {
+        header = index !== 0 && index < columns.length ? `${header},"${column.replace('.', '_')}"` : `${header}"${column.replace('.', '_')}"`;
+    });
+
+    // Create the file
+    try {
+        await fs.writeFileSync(fileName, `${header}\n`);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+//
+// Append rows to csv file
+//
+function appendCsvRows(fileName, data) {
+    // Add the rows
+    data.forEach((element) => {
+        const cells = Object.values(element);
+        let row = '';
+
+        cells.forEach((rawCell, index) => {
+            const cell = rawCell.replace(/"/g, '""');
+            row = index !== 0 && index < cells.length ? `${row},"${cell}"` : `${row}"${cell}"`;
+        });
+
+        try {
+            fs.appendFileSync(fileName, `${row}\n`);
+        } catch (error) {
+            console.log(error);
+        }
+    });
+}
+
+//
+// Send a GET request to the ServiceNow endpoint
+//
+async function getCis(sUrl, sOpts) {
+    sOpts.method = 'GET';
+    debug(`href: ${sUrl}\noptions: ${JSON.stringify(sOpts)}`);
+
+    try {
+        const serverResp = await fetch(sUrl, sOpts);
+        const cisRaw = await serverResp.json();
+        const cis = [];
+
+        if (!serverResp.ok) {
+            console.error(`ERROR: REST error querying table: ${cisRaw.error.message}`);
+        } else {
+            cisRaw.result.forEach((ci) => {
+                Object.keys(ci).forEach((element) => {
+                    if (typeof ci[element] === 'object' && ci[element] !== null) {
+                        ci[element] = ci[element].display_value;
+                    } else if (ci[element] === null) {
+                        ci[element] = '';
+                    }
+                });
+                cis.push(ci);
+            });
+            return cis;
+        }
+    } catch (error) {
+        console.error(`ERROR: Error querying table: ${error}`);
+        process.exit(0);
+    }
+    return null;
+}
+
+//
+// Paginate ServiceNow requests, and build CSV
+//
+async function buildCsv(opts) {
+    if (!cliopts.skip) {
+        // Build the URI with query string
+        const hostname = configfile.snow.hostname ? configfile.snow.hostname : null;
+
+        // CMDB
+        const getCiUrl = new URL(`${protocol}://${hostname}`);
+        let query = configfile.snow.sysparm_query ? configfile.snow.sysparm_query : '';
+        query = `ORDERBYsys_created_on,${query}`;
+
+        let sysparms = `sysparm_limit=${SNOW_LIMIT}&sysparm_display_value=true`;
+        sysparms = `${sysparms}&sysparm_fields=${sysparmFields}&sysparm_query=${query}`;
+
+        getCiUrl.pathname = `${cmdbPath}/${cmdbTable}`;
+        getCiUrl.search = encodeURI(`${sysparms}`);
+
+        // Do our first pull
+        console.log(`==== Fetching ${cmdbTable} ====`);
+
+        let cis = await getCis(getCiUrl, opts);
+
+        if (cis !== null && cis !== undefined) {
+            let numRecords = Object.keys(cis).length;
+
+            let offset = 0;
+            if (numRecords === SNOW_LIMIT) offset = SNOW_LIMIT + 1;
+
+            createCsvHeader(`./${cmdbName}.csv`, cis);
+            appendCsvRows(`./${cmdbName}.csv`, cis);
+
+            let recordCount = numRecords;
+            //  Loop all the time we're hitting the ServiceNow page limit
+            while (numRecords === SNOW_LIMIT) {
+                getCiUrl.search = encodeURI(`${sysparms}&sysparm_offset=${offset}`);
+                /* eslint-disable-next-line no-await-in-loop */
+                cis = await getCis(getCiUrl, opts);
+                numRecords = Object.keys(cis).length;
+                offset += SNOW_LIMIT;
+                recordCount += numRecords;
+
+                appendCsvRows(`./${cmdbName}.csv`, cis);
+            }
+            console.log(`Retrieved [${recordCount}] records`);
+        }
+    } else {
+        console.log('==== Skipping fetch ====');
+    }
+}
+
+async function main() {
+    await buildCsv(getOptions);
+    postCatalog(postOptions, cmdbName, cmdbTable);
+}
+
+main();

@@ -1,0 +1,285 @@
+#!/usr/bin/env node
+/** **************************************************************************
+ *
+ *  Utility to copy groups from ServiceNow to Moogsoft
+ *
+ *************************************************************************** */
+
+const fs = require('fs');
+const path = require('path');
+const yaml = require('js-yaml');
+const hjson = require('hjson');
+const getopts = require('getopts');
+
+const protocol = 'https';
+const mooghost = 'api.moogsoft.ai';
+
+const userGroupPath = '/api/now/table/sys_user_group';
+const groupsPath = '/v1/groups';
+
+const configPath = path.join(process.argv[1], '../../config');
+
+const CONF = 'mrsg';
+
+// Save output as a YAML file
+function saveYaml(saveObj) {
+    try {
+        fs.writeFileSync('saved.yaml', yaml.dump(saveObj));
+        console.log('Template file saved.yaml created');
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+// Save output as a JSON file
+function saveJson(saveObj) {
+    try {
+        fs.writeFileSync('saved.json', JSON.stringify(saveObj));
+        console.log('Template file saved.json created');
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+// Process command line options
+const cliopts = getopts(process.argv.slice(2), {
+    alias: {
+        loglevel: 'l',
+        dryrun: 'd',
+        init: 'i',
+        conf: 'c',
+        yaml: 'y',
+        json: 'j',
+        help: 'h',
+    },
+    default: {
+        loglevel: 'warn',
+        dryrun: false,
+        conf: false,
+    },
+});
+
+// A debug function
+function debug(msg) {
+    if (cliopts.loglevel === 'debug') console.log(msg);
+}
+
+if (cliopts.help) {
+    console.log('Usage: moog-rep-snow-grp [-i] [-d] [-j] [-y] [-l debug] [-c config_file] [-h]');
+    process.exit(0);
+}
+
+//
+// Create a template config file
+//
+if (cliopts.init) {
+    let template = '---\nmoog:\n  apiKey: \'foo-bar-0123434-ahdgefwvbs14535\'\n\n';
+    template = `${template}snow:\n  hostname: 'mysnow.service-now.com'\n  username: 'admin'\n  password: 'foobar'\n`;
+    template = `${template}  sysparm_query: ''\n`;
+    const cf = path.join(configPath, `${CONF}.yaml`);
+
+    try {
+        fs.writeFileSync(cf, template);
+        console.log(`Template file ${cf} created`);
+    } catch (err) {
+        console.log(err);
+    }
+    process.exit(0);
+}
+
+// Load a YAML config file
+function loadConfigYaml(cFileName) {
+    const cf = yaml.load(fs.readFileSync(cFileName, 'utf8'));
+    return cf;
+}
+
+// Load a HJSON config file
+function loadConfigHjson(cFileName) {
+    const cfText = fs.readFileSync(cFileName, 'utf8');
+    const cf = hjson.parse(cfText);
+    return cf;
+}
+
+// Determine what kind of config file is being used
+function loadConfig() {
+    const yamlFile = path.join(configPath, `/${CONF}.yaml`);
+    const confFile = path.join(configPath, `/${CONF}.conf`);
+    let cnfg = {};
+
+    if (cliopts.conf !== false) {
+        if (!fs.existsSync(cliopts.conf)) {
+            console.error(`ERROR: config file not found: ${cliopts.conf}`);
+            process.exit(2);
+        }
+
+        const ext = path.extname(cliopts.conf);
+        if (ext === '.yaml') {
+            cnfg = loadConfigYaml(cliopts.conf);
+        } else if (ext === '.conf') {
+            console.log('conf');
+            cnfg = loadConfigHjson(cliopts.conf);
+        } else {
+            console.error(`ERROR: unknown extension: ${ext}`);
+            process.exit(1);
+        }
+    } else {
+        const existYamlFile = fs.existsSync(yamlFile);
+        const existConfFile = fs.existsSync(confFile);
+
+        if (existYamlFile && existConfFile) {
+            console.error('ERROR: ambiguous configuration, only one file (.conf or .yaml) can exist');
+            process.exit(1);
+        } else if (existYamlFile) {
+            cnfg = loadConfigYaml(yamlFile);
+        } else if (existConfFile) {
+            cnfg = loadConfigHjson(confFile);
+        } else {
+            console.error('ERROR: no config file found');
+            process.exit(1);
+        }
+    }
+    return cnfg;
+}
+
+const configfile = loadConfig();
+
+//
+// Pull secrets
+//
+const apiKey = configfile.moog.apiKey ? configfile.moog.apiKey : null;
+const username = configfile.snow.username ? configfile.snow.username : null;
+const password = configfile.snow.password ? configfile.snow.password : null;
+
+//
+// HTTPS Options
+//
+const getOptions = {
+    headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+    },
+};
+
+const postOptions = {
+    headers: {
+        apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+    },
+};
+
+//
+// Build the URI with query string
+//
+const hostname = configfile.snow.hostname ? configfile.snow.hostname : null;
+
+const getUrl = new URL(`${protocol}://${hostname}`);
+getUrl.pathname = userGroupPath;
+
+const query = configfile.snow.sysparm_query ? `&sysparm_query=${configfile.snow.sysparm_query}` : '';
+getUrl.search = encodeURI(`sysparm_display_value=true${query}`);
+
+//
+// Define POST options
+//
+const postOpts = {
+    hostname: mooghost,
+    headers: postOptions.headers,
+    method: 'POST',
+};
+
+//
+// Send a POST request to API
+//
+async function postConfig(pOpts, group) {
+    if (cliopts.loglevel === 'debug') console.log(`Adding: ${JSON.stringify(group)}`);
+
+    const url = `https://${mooghost}${groupsPath}`;
+    pOpts.body = JSON.stringify(group);
+
+    if (!cliopts.dryrun) {
+        try {
+            const response = await fetch(url, pOpts);
+            const resp = await response.json();
+
+            if (cliopts.loglevel === 'debug') {
+                debug(resp);
+            }
+
+            // Normalized response logging
+            switch (resp.status) {
+                case 'success':
+                    if (cliopts.loglevel === 'debug') console.log(`${resp.status}: Group ${group.name} created`);
+                    break;
+                case 'failure':
+                    // Ignore "already exists" it's expected behavior
+                    if (!resp.additional[0].match(/already exists/)) {
+                        console.log(`${resp.status}: ${resp.additional[0]}`);
+                    }
+                    break;
+                case 'error':
+                    console.log(`${resp.status}: ${resp.message}`);
+                    break;
+                default:
+                    break;
+            }
+        } catch (error) {
+            console.error(`ERROR: ${JSON.stringify(error)}`);
+        }
+    }
+}
+
+//
+// Process the output of our get from ServiceNow
+//
+async function processBody(resbody) {
+    const groupNames = [];
+
+    resbody.result.forEach((group) => {
+        if (!group.name.match(/^[a-zA-Z0-9.&()_\-\s]+$/)) {
+            console.log(`Name failed validation: [${group.name}]`);
+        }
+        // Skip records with no name
+        if (group.name !== '') {
+            const gObj = {
+                name: group.name,
+                description: group.description.replace(/[\n\t]/g, ''),
+            };
+            groupNames.push(gObj);
+        }
+    });
+
+    // Save output
+    if (cliopts.yaml) saveYaml(groupNames);
+    if (cliopts.json) saveJson(groupNames);
+
+    groupNames.forEach((group) => {
+        // This is where we do the moog post
+        postConfig(postOpts, group);
+    });
+}
+
+//
+// Send a GET request to the ServiceNow endpoint
+//
+async function getGroups(sUrl, sOpts) {
+    console.log('==== Fetching groups ====');
+    debug(`href: ${sUrl}\noptions: ${JSON.stringify(sOpts)}`);
+
+    try {
+        const serverResp = await fetch(sUrl, sOpts);
+        const body = await serverResp.json();
+
+        if (!serverResp.ok) {
+            console.error(`ERROR: REST error querying table: ${body.error.message}`);
+        } else {
+            console.log(`Retrieved [${body.result.length}] groups`);
+            processBody(body);
+        }
+    } catch (error) {
+        console.error(`ERROR: Error querying table: ${error}`);
+    }
+    return null;
+}
+
+getGroups(getUrl, getOptions);
