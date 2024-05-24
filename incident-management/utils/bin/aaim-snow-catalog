@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** **************************************************************************
  *
- *  Utility to copy tables from ServiceNow to Moogsoft catalogs
+ *  Utility to copy tables from ServiceNow to Dell Apex AIOps IM catalogs
  *
  *************************************************************************** */
 
@@ -12,7 +12,7 @@ const hjson = require('hjson');
 const getopts = require('getopts');
 
 const protocol = 'https';
-const mooghost = 'api.moogsoft.ai';
+const aaimhost = 'api.moogsoft.ai';
 
 const cmdbPath = '/api/now/table';
 const catalogPath = '/v1/catalogs';
@@ -46,7 +46,7 @@ function debug(msg) {
 }
 
 if (cliopts.help) {
-    console.log('Usage: moog-snow-catalog [-i] [-d] [-l debug] [-c config_file] [-s] [-h]');
+    console.log('Usage: aaim-snow-catalog [-i] [-d] [-l debug] [-c config_file] [-s] [-h]');
     process.exit(0);
 }
 
@@ -54,7 +54,7 @@ if (cliopts.help) {
 // Create a template config file
 //
 if (cliopts.init) {
-    let template = '---\nmoog:\n  apiKey: \'foo-bar-0123434-ahdgefwvbs14535\'\n\n';
+    let template = '---\naaim:\n  apiKey: \'foo-bar-0123434-ahdgefwvbs14535\'\n\n';
     template = `${template}snow:\n  hostname: 'mysnow.service-now.com'\n  username: 'admin'\n  password: 'foobar'\n`;
     template = `${template}  cmdb_table: 'cmdb_ci'\n  sysparm_fields:\n    - name\n    - support_group\n    - sys_class_name\n`;
     template = `${template}  sysparm_query: 'install_status=1'\n`;
@@ -127,7 +127,7 @@ const configfile = loadConfig();
 //
 // Pull secrets
 //
-const apiKey = configfile.moog.apiKey ? configfile.moog.apiKey : null;
+const apiKey = configfile.aaim.apiKey ? configfile.aaim.apiKey : null;
 const username = configfile.snow.username ? configfile.snow.username : null;
 const password = configfile.snow.password ? configfile.snow.password : null;
 
@@ -158,7 +158,7 @@ const postOptions = {
 // Define the queries
 //
 const cmdbTable = configfile.snow.cmdb_table;
-const cmdbName = typeof configfile.moog.cmdb_alias !== 'undefined' ? configfile.moog.cmdb_alias : cmdbTable;
+const cmdbName = typeof configfile.aaim.cmdb_alias !== 'undefined' ? configfile.aaim.cmdb_alias : cmdbTable;
 const sysparmFields = configfile.snow.sysparm_fields.join(',');
 
 //
@@ -176,7 +176,7 @@ async function deleteCatalog(catalog) {
         }
 
         try {
-            const reqURL = `${protocol}://${mooghost}${catalogPath}/${catalog}`;
+            const reqURL = `${protocol}://${aaimhost}${catalogPath}/${catalog}`;
             const serverResp = await fetch(reqURL, {
                 headers,
                 method: 'DELETE',
@@ -214,7 +214,7 @@ async function postCatalog(options, csv, table) {
         process.exit(2);
     }
 
-    const url = `https://${mooghost}${catalogFilesPath}`;
+    const url = `https://${aaimhost}${catalogFilesPath}`;
     const formData = new FormData();
 
     const file = fs.readFileSync(fileName, 'utf8');
@@ -343,7 +343,7 @@ async function buildCsv(opts) {
         // CMDB
         const getCiUrl = new URL(`${protocol}://${hostname}`);
         let query = configfile.snow.sysparm_query ? configfile.snow.sysparm_query : '';
-        query = `ORDERBYsys_created_on,${query}`;
+        query = `ORDERBYsys_created_on&${query}`;
 
         let sysparms = `sysparm_limit=${SNOW_LIMIT}&sysparm_display_value=true`;
         sysparms = `${sysparms}&sysparm_fields=${sysparmFields}&sysparm_query=${query}`;

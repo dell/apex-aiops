@@ -1,13 +1,11 @@
-![Moogsoft Logo](https://www.moogsoft.com/wp-content/uploads/2017/02/moog-logo.png)
+# Dell Apex AIOps IM ServiceNow Assignment Group Replication Utility
 
-# Moogsoft ServiceNow Assignment Group Replication Utility
-
-*__moog-rep-snow-grp__* is a utility intended to facilitate the replication of ServiceNow assignment groups, (and their description) in Moogsoft Cloud.
+*__aaim-rep-snow-grp__* is a utility intended to facilitate the replication of ServiceNow assignment groups, (and their description) in Dell Apex AIOps IM (AAIM).
 
 The utility:
 
 * Queries the ServiceNow Table API to list the assignment groups
-* Replicates the groups in Moogsoft Cloud
+* Replicates the groups in AAIM
 * Fails harmlessly if the groups already exist
 
 **NOTE:**
@@ -15,7 +13,7 @@ The utility:
 * Paging is not implemented, so the group replication will be limited to the ServiceNow API limit (10k default).  
 * The process is additive only, new groups will be added, but deleted groups will be retained.  
 
-*__moog-rep-snow-grp__* is a **Node.js** utility and requires Node.js (version 18 or higher) to be installed, available [here](https://nodejs.org)
+*__aaim-rep-snow-grp__* is a **Node.js** utility and requires Node.js (version 18 or higher) to be installed, available [here](https://nodejs.org)
 ---
 ## Configration
 
@@ -31,7 +29,7 @@ As a third option, a configuration file can be specified from the command line. 
 
 ```JavaScript
 {
-    moog: {
+    aaim: {
         apiKey: 'foo-bar-0123434-ahdgefwvbs14535'
     },
 
@@ -46,13 +44,13 @@ As a third option, a configuration file can be specified from the command line. 
 
 Where:
 
-`moog.apiKey`:       Moogsoft API key  
+`aaim.apiKey`:       AAIM API key  
 `snow.hostname`:   The hostname (from URI) of your ServiceNow instance  
 `snow.username`:   The username used for a basic auth API request  
 `snow.password`:   The password used for a basic auth API request  
 `snow.sysparm_query`:   A ServiceNow encoded query to limit the number of records returned  
 
-Edit the config file to use your Moogsoft `apiKey` and specify your ServiceNow URL and credentials.
+Edit the config file to use your AAIM `apiKey` and specify your ServiceNow URL and credentials.
 
 The `sysparm_query` string uses the ServiceNow "encoded query" syntax, and can be generated from the ServiceNow UI Filter. An example is:
 
@@ -66,7 +64,7 @@ Which would limit groups to those that are active, and the name contains "operat
 
 ```JavaScript
 ---
-moog:
+aaim:
   apiKey: 'foo-bar-0123434-ahdgefwvbs14535'
 
 snow:
@@ -81,7 +79,7 @@ NOTE: This is a YAML file, so the correct indentation must be preserved.
 ## Usage
 
 ```
-moog-rep-snow-grp [-i] [-d] [-y] [-j] [-l debug] [-c config_file] [-h]
+aaim-rep-snow-grp [-i] [-d] [-y] [-j] [-l debug] [-c config_file] [-h]
     --init:              Create a template config file (./mrsg-config.yaml)
     --dryrun:            Show what groups would be added, but don't do it.
     --yaml:              Dump the entire search results as a YAML file. (saved.yaml)
@@ -95,15 +93,15 @@ moog-rep-snow-grp [-i] [-d] [-y] [-j] [-l debug] [-c config_file] [-h]
 
 - Run the utility
 
-    `$ moog-rep-snow-grp`
+    `$ aaim-rep-snow-grp`
 
-*Note:* If a group already exists in Moogsoft, the utility will report it as a failure ("already exists") this is intentional
+*Note:* If a group already exists in AAIM, the utility will report it as a failure ("already exists") this is intentional
 
-- Find out what it would do (but not don't replicate the groups in Moogsoft), and store the group information in a YAML file
+- Find out what it would do (but not don't replicate the groups in AAIM), and store the group information in a YAML file
 
-    `$ moog-rep-snow-grp -d -y`
+    `$ aaim-rep-snow-grp -d -y`
 
 - Get more detail - Useful for debugging issues
 
-    `$ moog-rep-snow-grp -l debug`
+    `$ aaim-rep-snow-grp -l debug`
 
