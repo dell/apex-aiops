@@ -18,9 +18,9 @@ This gap in availability may result in events, alerts or incidents not being enr
 
 ## Configration
 
-The default configuration file is `msc.conf`, and is found in the `config` directory. The file format is HJSON, a relaxed form of JSON (e.g: trailing commas and quotes are optional, and comments are supported).
+The default configuration file is `asc.conf`, and is found in the `config` directory. The file format is HJSON, a relaxed form of JSON (e.g: trailing commas and quotes are optional, and comments are supported).
 
-Alternatively, a YAML configuration can be used, by replacing the msc.conf file with a msc.yaml file (note the default config file name is fixed).
+Alternatively, a YAML configuration can be used, by replacing the asc.conf file with a asc.yaml file (note the default config file name is fixed).
 
 **NOTE:** The two files are mutually exclusive, if both exist, the utility will error.
 
@@ -95,10 +95,10 @@ NOTE: This is a YAML file, so the correct indentation must be preserved.
 
 ```
 aaim-snow-catalog [-i] [-d] [-l debug] [-c config_file] [-s] [-h]
-    --init:              Create a template config file (./msc-config.yaml)
+    --init:              Create a template config file (./asc-config.yaml)
     --dryrun:            Query ServiceNow, create a CSV file, but don't upload it to AAIM or delete a catalog
     --loglevel debug:    Be more verbose
-    --conf config_file:  Specify an alternative config file (default is ./msc-config.yaml)
+    --conf config_file:  Specify an alternative config file (default is ./asc-config.yaml)
     --skip:              Skip the inital ServiceNow query if a csv file already exists
     --help:              The usage message
 ```

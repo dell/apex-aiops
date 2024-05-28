@@ -17,9 +17,9 @@ The utility:
 ---
 ## Configration
 
-The default configuration file is `mrsg.conf`, and is found in the `config` directory. The file format is HJSON, a relaxed form of JSON (e.g: trailing commas and quotes are optional, and comments are supported).
+The default configuration file is `arsg.conf`, and is found in the `config` directory. The file format is HJSON, a relaxed form of JSON (e.g: trailing commas and quotes are optional, and comments are supported).
 
-Alternatively, a YAML configuration can be used, by replacing the mrsg.conf file with a mrsg.yaml file (note the default config file name is fixed).
+Alternatively, a YAML configuration can be used, by replacing the arsg.conf file with a arsg.yaml file (note the default config file name is fixed).
 
 **NOTE:** The two files are mutually exclusive, if both exist, the utility will error.
 
@@ -80,12 +80,12 @@ NOTE: This is a YAML file, so the correct indentation must be preserved.
 
 ```
 aaim-rep-snow-grp [-i] [-d] [-y] [-j] [-l debug] [-c config_file] [-h]
-    --init:              Create a template config file (./mrsg-config.yaml)
+    --init:              Create a template config file (./arsg-config.yaml)
     --dryrun:            Show what groups would be added, but don't do it.
     --yaml:              Dump the entire search results as a YAML file. (saved.yaml)
     --json:              Dump the entire search results as a JSON file. (saved.json)
     --loglevel debug:    Be more verbose
-    --conf config_file:  Specify an alternative config file (default is ./mrsg-config.yaml)
+    --conf config_file:  Specify an alternative config file (default is ./arsg-config.yaml)
     --help:              The usage message
 ```
 
