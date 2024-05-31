@@ -20,7 +20,7 @@ const catalogFilesPath = '/v1/catalog-files';
 
 const configPath = path.join(process.argv[1], '../../config');
 
-const CONF = 'msc';
+const CONF = 'asc';
 const SNOW_LIMIT = 10000;
 
 // Process command line options
