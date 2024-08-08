@@ -10,7 +10,9 @@ The utility:
 * Uploads the CSV file as a AAIM data enrichment catalog
 
 **NOTE:** Because this utility uses a "delete and replace" mechanism, this will result in a data catalog being unavailable between the delete and replace operations.
-This gap in availability may result in events, alerts or incidents not being enriched - this may impact downstream functions (e.g: Correlations that rely on the enrichment data provided by the data catalog)
+This gap in availability may result in events, alerts or incidents not being enriched - this may impact downstream functions (e.g: Correlations that rely on the enrichment data provided by the data catalog).
+
+Care should be taken to using this in production due to the above. 
 
 *__aaim-rep-snow-grp__* is a **Node.js** utility and requires Node.js (version 18 or higher) to be installed, available [here](https://nodejs.org)
 
