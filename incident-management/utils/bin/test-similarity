@@ -1,0 +1,119 @@
+#!/usr/bin/env node
+
+/* eslint-disable no-plusplus */
+/* eslint-disable no-mixed-operators */
+
+require('module-alias/register');
+const { Command, Option } = require('commander');
+const {
+    isPopulatedList,
+    uniqArray,
+    debug,
+    fatal,
+    logmsg,
+} = require('@aaim/utils-contrib');
+
+// ------------------------------------------
+// Command line options.
+// ------------------------------------------
+
+const program = new Command();
+
+program
+    .name('test-similarity')
+    .description('Returns the similarity of two strings, using words or shingles')
+    .version('1.0.0')
+    .option('-c,--shingle-size <size>', 'Shingle size (character count)', 3)
+    .addOption(new Option('-w,--words', 'Use words not shingles').conflicts('shingleSize'))
+    .option('-d,--debug')
+    .requiredOption('-s,--strings <strings...>', 'The two strings to compare (use quoted strings)');
+
+program.parse();
+const options = program.opts();
+
+// ------------------------------------------
+// Validate options
+// ------------------------------------------
+
+const [stringA, stringB] = [options.strings[0], options.strings[1]];
+const shingleSize = options.words ? 0 : parseInt(options.shingleSize, 10);
+
+if (!isPopulatedList(options.strings) || options.strings.length !== 2) {
+    fatal(`Expected to be passed 2 strings - use quoted strings if they contain multiple words - saw ${options.strings.length} strings`, 2);
+}
+
+if (Number.isNaN(shingleSize) || !/^\d+$/.test(shingleSize)) {
+    fatal('Shingle size was not an integer ', 2);
+}
+
+// ------------------------------------------
+// Functions
+// ------------------------------------------
+
+function shingle(inputText, shingleLength) {
+    // Unqiuify the strings at a token level before shingling.
+    // Rejoin with a single whitspace
+    // Shingle
+
+    const shingles = [];
+    let text = inputText.toLowerCase();
+    const wordList = uniqArray(text.split(/\s+/));
+
+    if (shingleLength === 0) {
+        return wordList;
+    }
+
+    text = wordList.join(' ');
+    for (let sIdx = 0; sIdx < text.length; sIdx++) {
+        if (sIdx + shingleSize > text.length) {
+            break;
+        }
+        const fragment = text.substring(sIdx, sIdx + shingleSize);
+        shingles.push(fragment);
+    }
+    return shingles;
+}
+
+function arrayIntersect(lista, listb) {
+    if (!Array.isArray(lista) || !Array.isArray(listb)) {
+        return [];
+    }
+    const intersects = [];
+    lista.forEach((e) => {
+        if (listb.indexOf(e) !== -1) {
+            intersects.push(e);
+        }
+    });
+    return intersects;
+}
+
+// ------------------------------------------
+// Process the strings.
+// ------------------------------------------
+
+const shingleA = uniqArray(shingle(stringA, shingleSize));
+const shingleB = uniqArray(shingle(stringB, shingleSize));
+
+debug(`String : ${stringA} : shingled to : ${JSON.stringify(shingleA)}`, options.debug);
+debug(`String : ${stringB} : shingled to : ${JSON.stringify(shingleB)}`, options.debug);
+
+const intersect = arrayIntersect(shingleA, shingleB);
+debug(`Intersect : ${JSON.stringify(intersect)}`, options.debug);
+const similarity = intersect.length === 0
+    ? 0
+    : 2 * intersect.length / (shingleA.length + shingleB.length) * 100;
+
+const similarityMethod = options.words ? 'Using words' : `Using ${shingleSize} letter shingles`;
+let banner = stringA.length >= stringB.length ? stringA.replace(/./g, '-') : stringB.replace(/./g, '-');
+banner = banner.length < similarityMethod.length ? similarityMethod.replace(/./g,'-') : banner;
+
+logmsg(`
+  ${banner}
+  ${similarityMethod}
+  ${banner}
+  ${stringA}
+  ${stringB}
+  ${banner}
+  Similarity : ${Math.floor(similarity)}%
+  ${banner}
+`);
