@@ -26,6 +26,7 @@ program
     .option('-c,--shingle-size <size>', 'Shingle size (character count)', 3)
     .addOption(new Option('-w,--words', 'Use words not shingles').conflicts('shingleSize'))
     .option('-d,--debug')
+    .option('-r,--compress','Compress whitespaces before shingling - false by default') 
     .requiredOption('-s,--strings <strings...>', 'The two strings to compare (use quoted strings)');
 
 program.parse();
@@ -63,7 +64,11 @@ function shingle(inputText, shingleLength) {
         return wordList;
     }
 
-    text = wordList.join(' ');
+    if ( options.compress ) {
+        debug('Compressing whitespace',options.debug);
+        text = wordList.join(' ');
+    }
+
     for (let sIdx = 0; sIdx < text.length; sIdx++) {
         if (sIdx + shingleSize > text.length) {
             break;
