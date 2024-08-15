@@ -59,3 +59,22 @@ Each utility should supply a README file in `docs`  e.g. `README_<utility_name>.
 
 If a utility supplies unit tests, they should be placed under `test`  and should be written using [jest](https://jestjs.io).
 
+### Node modules
+
+The utils use "_moduleAliases", so any utility that uses the available libs ( e.g. lib/utils-contrib) should use the following require in the script to access these before a lib require.
+
+e.g.
+
+```
+require('module-alias/register');
+
+const {
+    isPopulatedList,
+    uniqArray,
+    debug,
+    fatal,
+    logmsg,
+} = require('@aaim/utils-contrib');
+```
+
+If adding new contributed libraries (common utils etc.) please ensure these are aliased in the package.json accordingly. 

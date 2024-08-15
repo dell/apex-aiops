@@ -29,6 +29,6 @@
     "node-fetch": "2.6.7"
   },
   "_moduleAliases": {
-    "@aaim/utils-contrib": "lib/utils-contrib"
+    "@aaim/utils-contrib": "lib/utils-contrib/index.js"
   }
 }
