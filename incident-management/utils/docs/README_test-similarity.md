@@ -2,7 +2,7 @@
 
 ### Description
 
-*__test-similarity__* is a utility that provides a similarity score between two strings that can be used as a guide to configuring a Correlatin definition similarity percentage. 
+*__test-similarity__* is a utility that provides a similarity score between two strings that can be used as a guide to configuring a Correlation definition similarity percentage. 
 
 ### Usage
 
@@ -38,7 +38,7 @@ test-similarty -w -s "this is a cat" "cat a is this"
 ```
 ### Output 
 
-The output will provide the percentage similarity with the chosen simiarity mechanism (words or shingles)
+The output will provide the percentage similarity with the chosen similarity mechanism (words or shingles)
 
 ```./test-similarity -w -s "This is an alert description" "This is another alert description"
 
