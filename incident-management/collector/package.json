@@ -1,0 +1,30 @@
+{
+  "name": "AAIM Collector Contrib",
+  "version": "0.1.0",
+  "description": "APEX AIOps Incident Management Collector contributions",
+  "main": ".eslintrc.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"no test specified\" && exit 0",
+    "clean": "rm -rf ./build"
+  },
+  "devDependencies": {
+    "eslint": "8.35.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-jest": "27.2.1",
+    "jest": "28.0.2",
+    "jest-mock-console": "^1.2.3",
+    "nock": "13.3.0",
+    "typescript": "4.9.5"
+  },
+  "dependencies": {
+    "@moogsoft/aim-contrib": "file:../lib/",
+    "commander": "12.1.0",
+    "hjson": "3.2.2"
+  },
+  "author": "",
+  "license": "MIT"
+}
